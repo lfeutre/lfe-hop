@@ -21,9 +21,12 @@ following information on their site:
 * Bitbucket link to `pyhop`_, a Python implementation
 
 lfe-hop aims to provide an implementation in LFE for use in Erlang projects.
+In addition to the efforts linked above, lfe-hop borrows heavily from
+`Peter Norvig`_'s famous Lisp AI tour de force `PAIP`_.
 
 Though inspired by the work at UMD, lfe-hop is not affiliated with
 that institution.
+
 
 Further Information
 -------------------
@@ -31,6 +34,7 @@ Further Information
 * `Lecture notes & slides`_ for an `automated planning course`_ taught at UMD
 * `Automated planning and scheduling`_ on Wikipedia
 * `Hierarchical task networks`_ on Wikipedia
+
 
 Dependencies
 ------------
@@ -69,3 +73,5 @@ Add content to me here!
 .. _automated planning course: http://www.cs.umd.edu/~nau/cmsc722/
 .. _Automated planning and scheduling: https://en.wikipedia.org/wiki/Automated_planning_and_scheduling
 .. _Hierarchical task networks: https://en.wikipedia.org/wiki/Hierarchical_task_network
+.. _Peter Norvig: http://norvig.com/
+.. _PAIP: http://norvig.com/paip.html
