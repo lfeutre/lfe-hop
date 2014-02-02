@@ -1,7 +1,9 @@
 Expm.Package.new(name: "lfe-hop",
-                 description: "PROJECT DESCRIPTION",
+                 description: "A Hierarchical Ordered Planner for LFE",
                  version: "0.0.1",
-                 keywords: ["LFE", "Lisp", "Library", "API"],
-                 maintainers: [[name: "YOUR NAME",
-                                email: "YOUR@EMAIL.com"]],
-                 repositories: [[github: "YOUR_GITHUB_NAME/lfe-hop"]])
+                 keywords: ["LFE", "Lisp", "Library", "AI",
+                            "Artificial Intelligence", "Planners",
+                            "Task Networks", "Automated Planning"],
+                 maintainers: [[name: "Duncan McGreggor",
+                                email: "oubiwann@cogitat.io"]],
+                 repositories: [[github: "oubiwann/lfe-hop"]])
