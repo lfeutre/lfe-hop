@@ -20,12 +20,13 @@ following information on their site:
 * SourceForge links to `SHOP, JSHOP, SHOP2, and JSHOP2`_ downloads
 * Bitbucket link to `pyhop`_, a Python implementation
 
-lfe-hop aims to provide an implementation in LFE for use in Erlang projects.
-In addition to the efforts linked above, lfe-hop borrows heavily from
-`Peter Norvig`_'s famous Lisp AI tour de force `PAIP`_.
+lfe-hop aims to provide a hierarchical ordered planner implementation in LFE
+for use in Erlang projects.
 
-Though inspired by the work at UMD, lfe-hop is not affiliated with
-that institution.
+In addition to the efforts linked above, lfe-hop borrows heavily from
+`Peter Norvig`_'s famous Lisp AI tour de force, `PAIP`_. Also, please note:
+though inspired by the work at UMD, lfe-hop is not affiliated with that
+institution.
 
 
 Further Information
