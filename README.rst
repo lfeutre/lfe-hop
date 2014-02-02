@@ -5,7 +5,8 @@ lfe-hop
 A Hierarchical Ordered Planner for Lisp Flavored Erlang
 
 Yes, this is Artificial Intelligence. The AI Winter is over. Lisp has
-survived, and in fact, will probably never die. Get over it.
+survived, and in fact, will probably never die. Get over it. Also,
+`this`_.
 
 
 Introduction
@@ -64,6 +65,7 @@ Add content to me here!
 
 .. Links
 .. -----
+.. _this: http://xkcd.com/297/
 .. _rebar: https://github.com/rebar/rebar
 .. _LFE: https://github.com/rvirding/lfe
 .. _lfeunit: https://github.com/lfe/lfeunit
