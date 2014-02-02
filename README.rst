@@ -12,7 +12,7 @@ Introduction
 ============
 
 Hierarchical ordered planners are part of what is called
-automated-planning systems in AI. The University of Maryland has
+"automated planning systems" in AI. The University of Maryland has
 sponsored/created several hierarchical ordered planners and has the
 following information on their site:
 
@@ -22,6 +22,15 @@ following information on their site:
 
 lfe-hop aims to provide an implementation in LFE for use in Erlang projects.
 
+Though inspired by the work at UMD, lfe-hop is not affiliated with
+that institution.
+
+Further Information
+-------------------
+
+* `Lecture notes & slides`_ for an `automated planning course`_ taught at UMD
+* `Automated planning and scheduling`_ on Wikipedia
+* `Hierarchical task networks`_ on Wikipedia
 
 Dependencies
 ------------
@@ -56,3 +65,7 @@ Add content to me here!
 .. _The UMD SHOP Project: http://www.cs.umd.edu/projects/shop/description.html
 .. _SHOP, JSHOP, SHOP2, and JSHOP2: http://sourceforge.net/projects/shop/files/
 .. _pyhop: https://bitbucket.org/dananau/pyhop/src
+.. _Lecture notes & slides: http://www.cs.umd.edu/~nau/planning/slides/
+.. _automated planning course: http://www.cs.umd.edu/~nau/cmsc722/
+.. _Automated planning and scheduling: https://en.wikipedia.org/wiki/Automated_planning_and_scheduling
+.. _Hierarchical task networks: https://en.wikipedia.org/wiki/Hierarchical_task_network
