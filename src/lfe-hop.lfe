@@ -1,5 +1,9 @@
+;;;;
+;;;;
+;;;;
+;;;;
 (defmodule lfe-hop
   (export all))
 
-(defun run ()
+(defun plan (state tasks operators methods)
   (quote noop))
