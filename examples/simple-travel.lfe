@@ -1,18 +1,32 @@
+(defmacro plan args
+  `(list ,@args))
+
+(defmacro env args
+  `(list $ENV))
+
+(defmacro defun2 (name params body)
+  `(defun ,name ,params ,@body))
+
 (defmodule simple-travel
   (export all)
   (import
-    (rename orddict ((new 0) new-dict)
-                    ((store 3) store-dict)
-                    ((filter 2) filter-dict)
-                    ((map 2) map-dict)
-                    ((fetch 2) fetch-dict))))
+    (from dict (store 3)
+               (filter 2)
+               (map 2)
+               (fetch 2))
+    (rename dict ((new 0) new-dict)
+                 ((fetch_keys 1) keys)
+                 ((from_list 1) tuples->dict))))
 
 
 (defrecord entity
   name
   location
-  cash-total
+  (cash-total 0)
   (cash-owed 0))
+
+(defun get-min-walking-distance ()
+  2)
 
 (defun get-taxi-rate (distance)
   (+ 1.5 (* 0.5 distance)))
@@ -20,77 +34,112 @@
 (defun get-distance
   (('"home" '"park")
    8)
+  (('"park" '"home")
+   8)
   (('"downtown" '"home")
    17)
+  (('"home" '"downtown")
+   17)
   (('"park" '"downtown")
+   21)
+  (('"downtown" '"park")
    21))
 
 (defun get-location (state name)
-  (entity-location (fetch-dict name state)))
+  (entity-location (fetch name state)))
 
-(defun move (state name location)
-  (let ((mover (fetch-dict name state)))
-    (store-dict name
-                (set-entity-location mover location)
-                state)))
+(defun move (state agent-name location)
+  (let ((mover (fetch agent-name state)))
+    (store agent-name
+           (set-entity-location mover location)
+           state)))
 
-(defun owe (state name amount)
-  (let ((payer (fetch-dict name state)))
-    (store-dict name
-                (set-entity-cash-owed payer amount)
-                state)))
+(defun owe (state agent-name amount)
+  (let ((payer (fetch agent-name state)))
+    (store agent-name
+           (set-entity-cash-owed payer amount)
+           state)))
 
-(defun update-cash (state name amount)
-  (let* ((cash-holder (fetch-dict name state))
+(defun update-cash (state agent-name amount)
+  (let* ((cash-holder (fetch agent-name state))
          (cash (entity-cash-total cash-holder)))
-    (store-dict name
-                (set-entity-cash-total cash-holder (+ cash amount))
-                state)))
+    (store agent-name
+           (set-entity-cash-total cash-holder (+ cash amount))
+           state)))
 
 (defun pay-cash (state payer-name payee-name amount)
-  (let* ((payer (fetch-dict payer-name state))
+  (let* ((payer (fetch payer-name state))
          (payer-cash (entity-cash-total payer))
          (payer-owed (entity-cash-owed payer))
-         (state (update-cash state payer (* -1 amount)))
+         (state (update-cash state payer-name (* -1 amount)))
          (state (owe state payer-name (- payer-owed amount)))
-         (payee (fetch-dict payee-name state)))
-    (update-cash state payee amount)))
+         (payee (fetch payee-name state)))
+    (cond
+      ((>= payer-cash payer-owed)
+        (update-cash state payee-name amount))
+      ('true 'false))))
 
-(defun walk (state name location destination)
+(defun walk (state agent-name location destination)
   (cond
-    ((== (get-location state name) location)
-      (move state name destination))
+    ((== (get-location state agent-name) location)
+      (move state agent-name destination))
     ('true 'false)))
 
 (defun call-taxi (state location)
   (move state '"Taxi" location))
 
-(defun ride-taxi (state rider-name pickup destination)
+(defun ride-taxi (state agent-name pickup destination)
   (let ((taxi-name '"Taxi"))
     (cond
       ((and
          (== (get-location state taxi-name) pickup)
-         (== (get-location state rider-name) pickup))
+         (== (get-location state agent-name) pickup))
        (let* ((state (move state taxi-name destination))
-              (state (move state rider-name destination))
+              (state (move state agent-name destination))
               (fee (get-taxi-rate (get-distance pickup destination))))
-         (owe state rider-name fee)))
+         (owe state agent-name fee)))
       ('true 'false))))
 
-(defun pay-taxi (state rider-name amount)
-  (pay-cash state rider-name '"Taxi" amount))
+(defun pay-taxi (state agent-name amount)
+  (pay-cash state agent-name '"Taxi" amount))
 
-; XXX implement travel-by-foot
+(defun travel-by-foot (state agent-name location destination)
+  (cond
+    ((=< (get-min-walking-distance) (get-distance location destination))
+      (plan
+        (list 'walk agent-name location destination)))
+    ('true 'false)))
 
-; XXX implement travel-by-taxi
+(defun travel-by-taxi (state agent-name pickup destination)
+  (let* ((traveler (fetch agent-name state))
+         (traveler-cash (entity-cash-total traveler))
+         (fee (get-taxi-rate (get-distance pickup destination))))
+    (cond
+      ((>= traveler-cash fee)
+        (plan
+          (list 'call-taxi agent-name pickup)
+          (list 'ride-taxi agent-name pickup destination)
+          (list 'pay-taxi agent-name fee)))
+      ('true 'false))))
+
+(defun operators ()
+  (tuples->dict
+    `(#(walk ,#'walk/4)
+      #(call-taxi ,#'call-taxi/2)
+      #(ride-taxi ,#'ride-taxi/4)
+      #(pay-cash ,#'pay-cash/4))))
+
+(defun methods ()
+  (tuples->dict
+    `(#(travel (,#'travel-by-foot/4 ,#'travel-by-taxi/4)))))
 
 (defun run ()
   (let* ((operators 'xxx)
          (methods 'yyy)
          (bob (make-entity name '"Bob" location '"home" cash-total 10))
-         (state (store-dict (entity-name bob) bob (new-dict)))
+         (state (store (entity-name bob) bob (new-dict)))
          (taxi (make-entity name '"Taxi" location '"downtown"))
-         (state (store-dict (entity-name taxi) taxi state))
+         (state (store (entity-name taxi) taxi state))
          )
     (: lfe-hop plan
        state
