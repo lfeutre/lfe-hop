@@ -1,7 +1,7 @@
-;;;;
-;;;;
-;;;;
-;;;;
+;;
+;;
+;;
+;;
 (defmodule lfe-hop
   (export all)
   (import
@@ -16,15 +16,19 @@
     ))
 
 
-(defun get-first-task (tasks)
-  (cond
-    ((== tasks ()
+(defun first
+  ((tasks) (when (>= (length tasks) 1))
+    (car tasks))
+  ((_)
+    'false))
 
 (defun search-operators (state tasks operators methods plan task depth)
-  (list 'searched-operators))
+  (let ((operator-name (car task)))
+    (list 'searched-operators operator-name)))
 
 (defun search-methods (state tasks operators methods plan task depth)
-  (list 'searched-methods))
+  (let ((method-name (car task)))
+    (list 'searched-methods method-name)))
 
 (defun find-plan (state tasks operators methods)
   (let ((plan ())
@@ -32,12 +36,15 @@
     (find-plan state tasks operators methods plan depth)))
 
 (defun find-plan (state tasks operators methods plan depth)
-  (cond
-    ((== tasks ())
-      plan)
-    ((in? (car tasks) operators)
-      (search-operators state tasks operators methods plan (car tasks) depth))
-    ((in? (car tasks) methods)
-      (search-methods state tasks operators methods plan (car tasks) depth))
-    ('true 'false)))
+  ""
+  (let* ((task (first tasks))
+         (task-key (car task)))
+    (cond
+      ((== tasks ())
+        plan)
+      ((in? task-key (keys operators))
+        (search-operators state tasks operators methods plan task depth))
+      ((in? task-key (keys methods))
+        (search-methods state tasks operators methods plan task depth))
+      ('true 'false))))
 
