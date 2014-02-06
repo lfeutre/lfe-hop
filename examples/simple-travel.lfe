@@ -131,18 +131,17 @@
 
 (defun methods ()
   (tuples->dict
-    `(#(travel (,#'travel-by-foot/4 ,#'travel-by-taxi/4)))))
+    `(#(travel (,#'travel-by-foot/4
+                ,#'travel-by-taxi/4)))))
 
 (defun run ()
-  (let* ((operators 'xxx)
-         (methods 'yyy)
-         (bob (make-entity name '"Bob" location '"home" cash-total 10))
+  (let* ((bob (make-entity name '"Bob" location '"home" cash-total 10))
          (state (store (entity-name bob) bob (new-dict)))
          (taxi (make-entity name '"Taxi" location '"downtown"))
          (state (store (entity-name taxi) taxi state))
          )
-    (: lfe-hop plan
+    (: lfe-hop find-plan
        state
-       '(travel bob '"home" '"park")
-       operators
-       methods)))
+       '((travel bob '"home" '"park"))
+       (operators)
+       (methods))))
