@@ -12,6 +12,8 @@
     (rename dict ((new 0) new-dict)
                  ((fetch_keys 1) keys)
                  ((from_list 1) tuples->dict))
+    (from lists (append 1)
+                (append 2))
     (rename lists ((member 2) in?))
     ))
 
@@ -23,12 +25,34 @@
     'false))
 
 (defun search-operators (state tasks operators methods plan task depth)
-  (let ((operator-name (car task)))
-    (list 'searched-operators operator-name)))
+  (let* ((operator-name (car task))
+         (operator (fetch operator-name operators))
+         (remaining (cdr task))
+         (state (apply operator remaining)))
+    (cond
+      ((/= state 'false)
+       (let ((solution (find-plan state (cdr tasks) operators methods
+                                  (append plan '(task)) (+ depth 1))))
+         (cond
+           ((/= solution 'false) solution)))))))
+
+
+(defun process-subtasks (state tasks operators methods plan task depth method)
+  (let ((subtasks (apply method (append '(state) (cdr task)))))
+    (cond
+      ((/= subtasks 'false)
+       (let ((solution (find-plan state (append subtasks (cdr tasks)) operators
+                                  methods plan (+ depth 1))))
+         (cond
+           ((/= solution 'false) solution)))))))
 
 (defun search-methods (state tasks operators methods plan task depth)
-  (let ((method-name (car task)))
-    (list 'searched-methods method-name)))
+  (let* ((method-name (car task))
+         (relevant-methods (fetch method-name methods)))
+    (map (lambda (method)
+           (process-subtasks state tasks operators methods plan task depth
+                             method))
+         relevant-methods)))
 
 (defun find-plan (state tasks operators methods)
   (let ((plan ())
