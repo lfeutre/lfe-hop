@@ -63,7 +63,7 @@ clean-eunit:
 compile: get-deps clean-ebin
 	rebar compile
 
-compile-only: clean-ebin
+compile-no-deps: clean-ebin
 	rebar compile skip_deps=true
 
 compile-tests: clean-eunit
@@ -81,7 +81,7 @@ check: compile compile-tests
 	@clear;
 	@rebar eunit verbose=1 skip_deps=true
 
-check-only: compile-only compile-tests
+check-no-deps: compile-no-deps compile-tests
 	@clear;
 	@rebar eunit verbose=1 skip_deps=true
 
