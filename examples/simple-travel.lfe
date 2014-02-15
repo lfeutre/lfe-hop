@@ -1,12 +1,3 @@
-(defmacro plan args
-  `(list ,@args))
-
-(defmacro env args
-  `(list $ENV))
-
-(defmacro defun2 (name params body)
-  `(defun ,name ,params ,@body))
-
 (defmodule simple-travel
   (export all)
   (import
@@ -15,9 +6,9 @@
                (map 2)
                (fetch 2))
     (rename dict ((new 0) new-dict)
-                 ((fetch_keys 1) keys)
-                 ((from_list 1) tuples->dict))))
+                 ((fetch_keys 1) keys))))
 
+(include-lib "include/hop-macros.lfe")
 
 (defrecord entity
   name
@@ -107,7 +98,7 @@
   (cond
     ((=< (get-min-walking-distance) (get-distance location destination))
       (plan
-        (list 'walk agent-name location destination)))
+        `(walk ,agent-name ,location ,destination)))
     ('true 'false)))
 
 (defun travel-by-taxi (state agent-name pickup destination)
@@ -117,31 +108,29 @@
     (cond
       ((>= traveler-cash fee)
         (plan
-          (list 'call-taxi agent-name pickup)
-          (list 'ride-taxi agent-name pickup destination)
-          (list 'pay-taxi agent-name fee)))
+          `(call-taxi ,agent-name ,pickup)
+          `(ride-taxi ,agent-name ,pickup ,destination)
+          `(pay-taxi ,agent-name ,fee)))
       ('true 'false))))
 
-(defun operators ()
-  (tuples->dict
-    `(#(walk ,#'walk/4)
-      #(call-taxi ,#'call-taxi/2)
-      #(ride-taxi ,#'ride-taxi/4)
-      #(pay-cash ,#'pay-cash/4))))
+(defoperators operators
+  `(#(walk ,#'walk/4)
+    #(call-taxi ,#'call-taxi/2)
+    #(ride-taxi ,#'ride-taxi/4)
+    #(pay-cash ,#'pay-cash/4)))
 
-(defun methods ()
-  (tuples->dict
-    `(#(travel (,#'travel-by-foot/4
-                ,#'travel-by-taxi/4)))))
+(defmethods methods
+  `(#(travel (,#'travel-by-foot/4
+              ,#'travel-by-taxi/4))))
 
 (defun run ()
   (let* ((bob (make-entity name '"Bob" location '"home" cash-total 10))
          (state (store (entity-name bob) bob (new-dict)))
          (taxi (make-entity name '"Taxi" location '"downtown"))
          (state (store (entity-name taxi) taxi state))
-         )
+         (tasks '((travel bob "home" "park"))))
     (: lfe-hop find-plan
        state
-       '((travel bob '"home" '"park"))
+       tasks
        (operators)
        (methods))))
