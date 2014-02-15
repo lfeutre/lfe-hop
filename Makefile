@@ -48,7 +48,7 @@ $(EXPM): $(BIN_DIR)
 	curl -o $(EXPM) http://expm.co/__download__/expm
 	chmod +x $(EXPM)
 
-get-deps: $(EXPM)
+get-deps:
 	rebar get-deps
 	for DIR in $(wildcard $(DEPS)/*); \
 	do cd $$DIR; echo "Updating $$DIR ..."; \
@@ -110,7 +110,7 @@ install: compile
 		&& exit 1; \
 	fi
 
-upload: get-version
+upload: $(EXPM) get-version
 	@echo "Package file:"
 	@echo
 	@cat package.exs
