@@ -74,6 +74,10 @@ shell: compile
 	clear
 	ERL_LIBS=$(ERL_LIBS) $(LFE) -pa $(TEST_OUT_DIR)
 
+shell-no-deps: compile-no-deps
+	clear
+	ERL_LIBS=$(ERL_LIBS) $(LFE) -pa $(TEST_OUT_DIR)
+
 clean: clean-ebin clean-eunit
 	rebar clean
 
