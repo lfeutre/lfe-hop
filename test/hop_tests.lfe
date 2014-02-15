@@ -133,6 +133,22 @@
          (taxi (make-entity name '"Taxi" location '"downtown")))
     (store (entity-name taxi) taxi state)))
 
+(defun empty-tasks ()
+  '())
+
+(defun no-matching-tasks ()
+  '((stay-at-home bob "home" "home")))
+
+(defun one-method-task ()
+  '((travel bob "home" "park")))
+
+(defun one-operator-task ()
+  '((walk bob "home" "park")))
+
+(defun some-tasks ()
+  '((travel bob "home" "park")
+    (walk bob "park" "home")))
+
 ;; Start of actual tests
 
 (deftest car-bool
@@ -147,11 +163,13 @@
   (is-equal 'false (: hop cdr-bool '()))
   (is-equal 'false (: hop cdr-bool 'false)))
 
-(defun empty-tasks ()
-  '())
-
-(defun some-tasks ()
-  '((travel bob "home" "park")))
+(deftest has-task?
+  (is-equal 'false (: hop has-task? 'travel (operators)))
+  (is-equal 'true (: hop has-task? 'walk (operators)))
+  (is-equal 'false (: hop has-task? 'fly (operators)))
+  (is-equal 'true (: hop has-task? 'travel (methods)))
+  (is-equal 'false (: hop has-task? 'walk (methods)))
+  (is-equal 'false (: hop has-task? 'fly (methods))))
 
 (deftest search-operators-false-state
   (is-equal 1 1))
@@ -169,5 +187,25 @@
        (empty-tasks)
        (operators)
        (methods)
-       '(the-plan "do this" "then that")))
-  )
+       '(the-plan "do this" "then that"))))
+
+(deftest find-plan-no-matching-task-key
+  (is-equal 'false (: hop find-plan
+                     (state)
+                     (no-matching-tasks)
+                     (operators)
+                     (methods))))
+
+(deftest find-plan-operator-task
+  (is-equal '() (: hop find-plan
+                   (state)
+                   (one-operator-task)
+                   (operators)
+                   (methods))))
+
+(deftest find-plan-method-task
+  (is-equal '() (: hop find-plan
+                   (state)
+                   (one-method-task)
+                   (operators)
+                   (methods))))

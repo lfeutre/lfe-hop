@@ -27,6 +27,11 @@
     (cdr tasks))
   ((_) 'false))
 
+(defun has-task? (task-key tasks)
+  "The argument 'tasks' should either be a a list of operators or a list of
+  methods, both of which should be generated using their respective macros."
+  (in? task-key (keys tasks)))
+
 (defun search-operators (state tasks operators methods plan task depth)
   (let* ((operator-name (car task))
          (operator (fetch operator-name operators))
@@ -76,9 +81,9 @@
     (cond
       ((== tasks '())
         plan)
-      ((in? task-key (keys operators))
+      ((has-task? task-key operators)
         (search-operators state tasks operators methods plan task depth))
-      ((in? task-key (keys methods))
+      ((has-task? task-key methods)
         (search-methods state tasks operators methods plan task depth))
       ('true 'false))))
 
