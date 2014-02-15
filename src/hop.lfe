@@ -1,8 +1,4 @@
-;;
-;;
-;;
-;;
-(defmodule lfe-hop
+(defmodule hop
   (export all)
   (import
     (from dict (store 3)
@@ -10,19 +6,26 @@
                (map 2)
                (fetch 2))
     (rename dict ((new 0) new-dict)
-                 ((fetch_keys 1) keys)
-                 ((from_list 1) tuples->dict))
+                 ((fetch_keys 1) keys))
     (from lists (append 1)
                 (append 2))
-    (rename lists ((member 2) in?))
-    ))
+    (rename lists ((member 2) in?))))
 
+(include-lib "include/hop-macros.lfe")
 
-(defun first
-  ((tasks) (when (>= (length tasks) 1))
+(defun car-bool
+  ((tasks) (when (== tasks 'false))
+   'false)
+  ((tasks) (when (> (length tasks) 0))
     (car tasks))
-  ((_)
-    'false))
+  ((_) 'false))
+
+(defun cdr-bool
+  ((tasks) (when (== tasks 'false))
+   'false)
+  ((tasks) (when (> (length tasks) 0))
+    (cdr tasks))
+  ((_) 'false))
 
 (defun search-operators (state tasks operators methods plan task depth)
   (let* ((operator-name (car task))
@@ -31,18 +34,22 @@
          (state (apply operator remaining)))
     (cond
       ((/= state 'false)
-       (let ((solution (find-plan state (cdr tasks) operators methods
-                                  (append plan '(task)) (+ depth 1))))
+       (let* ((tasks (cdr-bool tasks))
+              (plan (append plan '(task)))
+              (depth (+ depth 1))
+              (solution (find-plan
+                          state tasks operators methods plan depth)))
          (cond
            ((/= solution 'false) solution)))))))
-
 
 (defun process-subtasks (state tasks operators methods plan task depth method)
   (let ((subtasks (apply method (append '(state) (cdr task)))))
     (cond
       ((/= subtasks 'false)
-       (let ((solution (find-plan state (append subtasks (cdr tasks)) operators
-                                  methods plan (+ depth 1))))
+       (let* ((tasks (append subtasks (cdr-bool tasks)))
+              (depth (+ depth 1))
+              (solution (find-plan
+                          state tasks operators methods plan depth)))
          (cond
            ((/= solution 'false) solution)))))))
 
@@ -55,16 +62,19 @@
          relevant-methods)))
 
 (defun find-plan (state tasks operators methods)
-  (let ((plan ())
-        (depth 0))
+  (let ((plan ()))
+    (find-plan state tasks operators methods plan)))
+
+(defun find-plan (state tasks operators methods plan)
+  (let ((depth 0))
     (find-plan state tasks operators methods plan depth)))
 
 (defun find-plan (state tasks operators methods plan depth)
   ""
-  (let* ((task (first tasks))
-         (task-key (car task)))
+  (let* ((task (car-bool tasks))
+         (task-key (cdr-bool task)))
     (cond
-      ((== tasks ())
+      ((== tasks '())
         plan)
       ((in? task-key (keys operators))
         (search-operators state tasks operators methods plan task depth))
