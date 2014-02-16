@@ -124,7 +124,7 @@
               ,#'travel-by-taxi/4))))
 
 (deftasks tasks
-  ('travel '"Bob" '"home" '"park"))
+  '(travel "Bob" "home" "park"))
 
 (defun run ()
   (let* ((bob (make-entity name '"Bob" location '"home" cash-total 10))
