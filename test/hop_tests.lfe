@@ -11,14 +11,13 @@
 (include-lib "deps/lfeunit/include/lfeunit-macros.lfe")
 (include-lib "include/hop-macros.lfe")
 
-;; Before we do the tests, let's set up an example to use in them
+;; Set up data for tests
 
 (defrecord entity
   name
   location
   (cash-total 0)
   (cash-owed 0))
-
 
 (defun get-min-walking-distance ()
   2)
@@ -101,7 +100,7 @@
 (defun travel-by-foot (state agent-name location destination)
   (cond
     ((=< (get-min-walking-distance) (get-distance location destination))
-      (plan
+      (subtasks
         `(walk ,agent-name ,location ,destination)))
     ('true 'false)))
 
@@ -111,8 +110,8 @@
          (fee (get-taxi-rate (get-distance pickup destination))))
     (cond
       ((>= traveler-cash fee)
-        (plan
-          `(call-taxi ,agent-name ,pickup)
+        (subtasks
+          `(call-taxi ,pickup)
           `(ride-taxi ,agent-name ,pickup ,destination)
           `(pay-taxi ,agent-name ,fee)))
       ('true 'false))))
@@ -133,58 +132,45 @@
          (taxi (make-entity name '"Taxi" location '"downtown")))
     (store (entity-name taxi) taxi state)))
 
-(defun empty-tasks ()
+(deftasks tasks-empty
   '())
 
-(defun no-matching-tasks ()
-  '((stay-at-home bob "home" "home")))
+(deftasks tasks-no-matching
+  '(stay-at-home "Bob" "home" "home"))
 
-(defun one-method-task ()
-  '((travel bob "home" "park")))
+(deftasks tasks-one-method
+  '(travel "Bob" "home" "park"))
 
-(defun one-operator-task ()
-  '((walk bob "home" "park")))
+(deftasks tasks-one-operator
+  '(walk "Bob" "home" "park"))
 
-(defun some-tasks ()
-  '((travel bob "home" "park")
-    (walk bob "park" "home")))
+(deftasks tasks-some
+  '(travel "Bob" "home" "park")
+  '(walk "Bob" "park" "home"))
 
 ;; Start of actual tests
 
-(deftest car-bool
-  (is-equal 1 (: hop car-bool '(1 2 3)))
-  (is-equal 1 (: hop car-bool '(1)))
-  (is-equal 'false (: hop car-bool '()))
-  (is-equal 'false (: hop car-bool 'false)))
-
-(deftest cdr-bool
-  (is-equal '(2 3) (: hop cdr-bool '(1 2 3)))
-  (is-equal '() (: hop cdr-bool '(1)))
-  (is-equal 'false (: hop cdr-bool '()))
-  (is-equal 'false (: hop cdr-bool 'false)))
-
-(deftest has-task?
-  (is-equal 'false (: hop has-task? 'travel (operators)))
-  (is-equal 'true (: hop has-task? 'walk (operators)))
-  (is-equal 'false (: hop has-task? 'fly (operators)))
-  (is-equal 'true (: hop has-task? 'travel (methods)))
-  (is-equal 'false (: hop has-task? 'walk (methods)))
-  (is-equal 'false (: hop has-task? 'fly (methods))))
-
 (deftest search-operators-false-state
-  (is-equal 1 1))
+  (is-equal '() (: hop search-operators
+                   'false
+                   (tasks-empty)
+                   (operators)
+                   (methods)
+                   'plan
+                   (car (tasks-one-operator))
+                   0)))
 
 (deftest find-plan-empty-tasks
   (is-equal '() (: hop find-plan
                    (state)
-                   (empty-tasks)
+                   (tasks-empty)
                    (operators)
                    (methods)))
   (is-equal
     '(the-plan "do this" "then that")
     (: hop find-plan
        (state)
-       (empty-tasks)
+       (tasks-empty)
        (operators)
        (methods)
        '(the-plan "do this" "then that"))))
@@ -192,20 +178,20 @@
 (deftest find-plan-no-matching-task-key
   (is-equal 'false (: hop find-plan
                      (state)
-                     (no-matching-tasks)
+                     (tasks-no-matching)
                      (operators)
                      (methods))))
 
 (deftest find-plan-operator-task
   (is-equal '() (: hop find-plan
                    (state)
-                   (one-operator-task)
+                   (tasks-one-operator)
                    (operators)
                    (methods))))
 
 (deftest find-plan-method-task
   (is-equal '() (: hop find-plan
                    (state)
-                   (one-method-task)
+                   (tasks-one-method)
                    (operators)
                    (methods))))

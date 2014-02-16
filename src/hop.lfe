@@ -9,34 +9,19 @@
                  ((fetch_keys 1) keys))
     (from lists (append 1)
                 (append 2))
-    (rename lists ((member 2) in?))))
+    (rename lists ((member 2) in?))
+    (from hop-util (car-bool 1)
+                   (cdr-bool 1)
+                   (has-task? 2)
+                   (empty-tasks? 1))))
 
 (include-lib "include/hop-macros.lfe")
-
-(defun car-bool
-  ((tasks) (when (== tasks 'false))
-   'false)
-  ((tasks) (when (> (length tasks) 0))
-    (car tasks))
-  ((_) 'false))
-
-(defun cdr-bool
-  ((tasks) (when (== tasks 'false))
-   'false)
-  ((tasks) (when (> (length tasks) 0))
-    (cdr tasks))
-  ((_) 'false))
-
-(defun has-task? (task-key tasks)
-  "The argument 'tasks' should either be a a list of operators or a list of
-  methods, both of which should be generated using their respective macros."
-  (in? task-key (keys tasks)))
 
 (defun search-operators (state tasks operators methods plan task depth)
   (let* ((operator-name (car task))
          (operator (fetch operator-name operators))
          (remaining (cdr task))
-         (state (apply operator remaining)))
+         (state (apply operator (append '(state) remaining))))
     (cond
       ((/= state 'false)
        (let* ((tasks (cdr-bool tasks))
@@ -67,7 +52,7 @@
          relevant-methods)))
 
 (defun find-plan (state tasks operators methods)
-  (let ((plan ()))
+  (let ((plan '()))
     (find-plan state tasks operators methods plan)))
 
 (defun find-plan (state tasks operators methods plan)
@@ -79,7 +64,7 @@
   (let* ((task (car-bool tasks))
          (task-key (cdr-bool task)))
     (cond
-      ((== tasks '())
+      ((empty-tasks? tasks)
         plan)
       ((has-task? task-key operators)
         (search-operators state tasks operators methods plan task depth))
