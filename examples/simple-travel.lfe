@@ -97,7 +97,7 @@
 (defun travel-by-foot (state agent-name location destination)
   (cond
     ((=< (get-min-walking-distance) (get-distance location destination))
-      (plan
+      (subtasks
         `(walk ,agent-name ,location ,destination)))
     ('true 'false)))
 
@@ -107,10 +107,10 @@
          (fee (get-taxi-rate (get-distance pickup destination))))
     (cond
       ((>= traveler-cash fee)
-        (plan
+        (subtasks
           `(call-taxi ,agent-name ,pickup)
           `(ride-taxi ,agent-name ,pickup ,destination)
-          `(pay-taxi ,agent-name ,fee)))
+          `(pay-cash ,agent-name ,fee)))
       ('true 'false))))
 
 (defoperators operators
@@ -123,14 +123,16 @@
   `(#(travel (,#'travel-by-foot/4
               ,#'travel-by-taxi/4))))
 
+(deftasks tasks
+  ('travel '"Bob" '"home" '"park"))
+
 (defun run ()
   (let* ((bob (make-entity name '"Bob" location '"home" cash-total 10))
          (state (store (entity-name bob) bob (new-dict)))
          (taxi (make-entity name '"Taxi" location '"downtown"))
-         (state (store (entity-name taxi) taxi state))
-         (tasks '((travel bob "home" "park"))))
+         (state (store (entity-name taxi) taxi state)))
     (: lfe-hop find-plan
        state
-       tasks
+       (tasks)
        (operators)
        (methods))))
