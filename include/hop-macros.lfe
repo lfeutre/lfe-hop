@@ -1,3 +1,17 @@
+(defrecord problemset
+  problems)
+
+(defrecord problem
+  domain
+  (facts '())
+  state
+  (goals '()))
+
+(defrecord domain
+  operators
+  (methods '())
+  (axioms '()))
+
 (defmacro deftasks arg
   "A convenience wrapper for defining HOP (HTN) tasks.
 
