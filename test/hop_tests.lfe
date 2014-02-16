@@ -6,7 +6,13 @@
                (map 2)
                (fetch 2))
     (rename dict ((new 0) new-dict)
-                 ((fetch_keys 1) keys))))
+                 ((fetch_keys 1) keys))
+    (from lists (append 1)
+                (append 2))
+    (from hop-util (car-bool 1)
+                   (cdr-bool 1)
+                   (has-task? 2)
+                   (empty-tasks? 1))))
 
 (include-lib "deps/lfeunit/include/lfeunit-macros.lfe")
 (include-lib "include/hop-macros.lfe")
@@ -151,14 +157,32 @@
 ;; Start of actual tests
 
 (deftest search-operators-false-state
-  (is-equal '() (: hop search-operators
+  (is-equal 'false (: hop search-operators
                    'false
-                   (tasks-empty)
+                   (tasks-one-operator)
                    (operators)
                    (methods)
-                   'plan
-                   (car (tasks-one-operator))
+                   '()
+                   (car-bool (tasks-one-operator))
                    0)))
+
+(deftest search-operators-state-change
+  (is-equal '"home" (get-location (state) '"Bob"))
+  (let* ((tasks (tasks-one-operator))
+         (task (car-bool tasks))
+         (operator-name (car task))
+         (operator (fetch operator-name (operators)))
+         (remaining (cdr task))
+         (args (append `(,(state)) remaining))
+         (new-state (apply operator args))
+         )
+    (is-not-equal '() tasks)
+    (is-equal '(walk "Bob" "home" "park") task)
+    (is-equal 'walk operator-name)
+    (is-not-equal '() operator)
+    (is-equal '("Bob" "home" "park") remaining)
+    (is-not-equal '() args)
+    (is-equal '"park" (get-location new-state '"Bob"))))
 
 (deftest find-plan-empty-tasks
   (is-equal '() (: hop find-plan

@@ -18,22 +18,24 @@
 (include-lib "include/hop-macros.lfe")
 
 (defun search-operators (state tasks operators methods plan task depth)
-  (let* ((operator-name (car task))
-         (operator (fetch operator-name operators))
-         (remaining (cdr task))
-         (state (apply operator (append '(state) remaining))))
-    (cond
-      ((/= state 'false)
-       (let* ((tasks (cdr-bool tasks))
-              (plan (append plan '(task)))
-              (depth (+ depth 1))
-              (solution (find-plan
-                          state tasks operators methods plan depth)))
-         (cond
-           ((/= solution 'false) solution)))))))
+  (cond
+    ((== state 'false)
+     'false)
+    ('true
+      (let* ((operator-name (car task))
+             (operator (fetch operator-name operators))
+             (remaining (cdr task))
+             (state (apply operator (append `(,state) remaining)))
+             (tasks (cdr-bool tasks))
+             (plan (append plan '(task)))
+             (depth (+ depth 1))
+             (solution (find-plan state tasks operators methods plan depth)))
+        (cond
+         ((/= solution 'false) solution)
+         ('true 'false))))))
 
 (defun process-subtasks (state tasks operators methods plan task depth method)
-  (let ((subtasks (apply method (append '(state) (cdr task)))))
+  (let ((subtasks (apply method (append `(,state) (cdr task)))))
     (cond
       ((/= subtasks 'false)
        (let* ((tasks (append subtasks (cdr-bool tasks)))
